@@ -1,0 +1,126 @@
+# https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions
+# https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-java-with-gradle
+
+name: CI
+
+on:
+  push:
+    branches:
+      - '*'
+    tags:
+      - '[0-9]*'
+    paths-ignore:
+      - '**.md'
+      - '.*'
+      - '**/.settings/**'
+      - 'flatlaf-core/svg/**'
+      - 'flatlaf-natives/**'
+      - 'flatlaf-testing/dumps/**'
+      - 'flatlaf-testing/misc/**'
+      - 'images/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: gradle/actions/wrapper-validation@v4
+
+      - name: Setup Java 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: 21
+          distribution: temurin  # pre-installed on ubuntu-latest
+
+      - name: Cache Gradle
+        uses: ./.github/actions/cache-gradle
+
+
+        # test against
+        # - Java 8 (minimum requirement)
+        # - Java LTS versions (11, 17, ...)
+        # - latest Java version(s)
+
+      - name: Build with Java 11 LTS
+        if: github.repository == 'JFormDesigner/FlatLaf'
+        run: ./gradlew build clean -Dtoolchain=11
+
+      - name: Build with Java 17 LTS
+        if: github.repository == 'JFormDesigner/FlatLaf'
+        run: ./gradlew build clean -Dtoolchain=17
+
+      - name: Build with Java 21 LTS
+        if: github.repository == 'JFormDesigner/FlatLaf'
+        run: ./gradlew build clean -Dtoolchain=21
+
+      - name: Build with Java 25 LTS
+        if: github.repository == 'JFormDesigner/FlatLaf'
+        run: ./gradlew build clean -Dtoolchain=25
+
+
+        # build with Java 8 for snapshot
+
+      - name: Build with Java 8
+        run: ./gradlew build
+
+      - name: Upload artifacts to GitHub Actions
+        uses: actions/upload-artifact@v4
+        with:
+          name: FlatLaf-build-artifacts
+          path: |
+            flatlaf-*/build/libs
+            flatlaf-*/flatlaf-*/build/libs
+            !**/*-javadoc.jar
+            !**/*-sources.jar
+
+
+      - name: Publish snapshot to Sonatype Central
+        if: |
+          github.repository == 'JFormDesigner/FlatLaf' &&
+          github.event_name == 'push' &&
+          (github.ref == 'refs/heads/main' || startsWith( github.ref, 'refs/heads/develop-' ))
+        run: ./gradlew publish -PskipFonts -Dorg.gradle.internal.publish.checksums.insecure=true -Dorg.gradle.parallel=false
+        env:
+          SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
+          SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+
+
+  release:
+    runs-on: ubuntu-latest
+    needs: build
+    if: |
+      github.event_name == 'push' &&
+      startsWith( github.ref, 'refs/tags/' ) &&
+      github.repository == 'JFormDesigner/FlatLaf'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Java 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: 21
+          distribution: temurin  # pre-installed on ubuntu-latest
+
+      - name: Cache Gradle
+        uses: ./.github/actions/cache-gradle
+
+      - name: Release a new stable version to Maven Central and build demo and theme editor
+        run: ./gradlew publishToSonatype closeSonatypeStagingRepository :flatlaf-demo:build :flatlaf-theme-editor:build -PskipFonts -Prelease -Dorg.gradle.parallel=false
+        env:
+          SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
+          SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+          SIGNING_KEY:      ${{ secrets.SIGNING_KEY }}
+          SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
+
+      - name: Install lftp
+        run: sudo apt-get -y install lftp
+
+      - name: Upload demo and theme editor
+        run: >
+          lftp -c "set ftp:ssl-force true;
+            open -u ${{ secrets.FTP_USERNAME }},${{ secrets.FTP_PASSWORD }} ${{ secrets.FTP_SERVER }};
+            mput flatlaf-demo/build/libs/flatlaf-demo-*.jar;
+            mput flatlaf-theme-editor/build/libs/flatlaf-theme-editor-*.jar"

@@ -1,0 +1,124 @@
+- Class  com.formdev.flatlaf.FlatDarkLaf
++ Class  com.formdev.flatlaf.FlatDarculaLaf
+
+- ID     FlatLaf - FlatLaf Dark
++ ID     FlatLaf - FlatLaf Darcula
+
+- Name   FlatLaf Dark
++ Name   FlatLaf Darcula
+
+#---- Button ----
+
+- Button.border                  [lazy] 1,1,1,1  false    com.formdev.flatlaf.ui.FlatButtonBorder [UI]
++ Button.border                  [lazy] 3,3,3,3  false    com.formdev.flatlaf.ui.FlatButtonBorder [UI]
+
+- Button.innerFocusWidth         1
++ Button.innerFocusWidth         0
+
+
+#---- CheckBox ----
+
+- CheckBox.icon.focusWidth       1
+- CheckBox.icon.focusedBackground #446e9e4d  30%  HSLA 212  40  44 30    javax.swing.plaf.ColorUIResource [UI]
+
+
+#---- ComboBox ----
+
+- ComboBox.border                [lazy] 1,1,1,1  false    com.formdev.flatlaf.ui.FlatRoundBorder [UI]
++ ComboBox.border                [lazy] 3,3,3,3  false    com.formdev.flatlaf.ui.FlatRoundBorder [UI]
+
+
+#---- Component ----
+
+- Component.arrowType            chevron
++ Component.arrowType            triangle
+
+- Component.focusWidth           0
++ Component.focusWidth           2
+
+- Component.innerFocusWidth      0.5
++ Component.innerFocusWidth      0
+
+- Component.innerOutlineWidth    1
++ Component.innerOutlineWidth    0
+
+
+#---- FormattedTextField ----
+
+- FormattedTextField.border      [lazy] 1,1,1,1  false    com.formdev.flatlaf.ui.FlatTextBorder [UI]
++ FormattedTextField.border      [lazy] 3,3,3,3  false    com.formdev.flatlaf.ui.FlatTextBorder [UI]
+
+
+#---- HelpButton ----
+
+- HelpButton.icon                [lazy] 22,22    com.formdev.flatlaf.icons.FlatHelpButtonIcon [UI]
++ HelpButton.icon                [lazy] 26,26    com.formdev.flatlaf.icons.FlatHelpButtonIcon [UI]
+
+- HelpButton.innerFocusWidth     1
++ HelpButton.innerFocusWidth     0
+
+
+#---- JXDatePicker ----
+
+- JXDatePicker.border            [lazy] 1,1,1,1  false    com.formdev.flatlaf.swingx.ui.FlatDatePickerBorder [UI]
++ JXDatePicker.border            [lazy] 3,3,3,3  false    com.formdev.flatlaf.swingx.ui.FlatDatePickerBorder [UI]
+
+
+#---- PasswordField ----
+
+- PasswordField.border           [lazy] 1,1,1,1  false    com.formdev.flatlaf.ui.FlatTextBorder [UI]
++ PasswordField.border           [lazy] 3,3,3,3  false    com.formdev.flatlaf.ui.FlatTextBorder [UI]
+
+
+#---- ProgressBar ----
+
+- ProgressBar.foreground         #4c87c8  HSL 211  53  54    javax.swing.plaf.ColorUIResource [UI]
++ ProgressBar.foreground         #c4c4c4  HSL   0   0  77    javax.swing.plaf.ColorUIResource [UI]
+
+- ProgressBar.selectionForeground #eeeeee  HSL   0   0  93    javax.swing.plaf.ColorUIResource [UI]
++ ProgressBar.selectionForeground #1e2021  HSL 200   5  12    javax.swing.plaf.ColorUIResource [UI]
+
+
+#---- RadioButton ----
+
+- RadioButton.icon.centerDiameter 8
++ RadioButton.icon.centerDiameter 5
+
+
+#---- ScrollPane ----
+
+- ScrollPane.border              [lazy] 1,1,1,1  false    com.formdev.flatlaf.ui.FlatScrollPaneBorder [UI]
++ ScrollPane.border              [lazy] 3,3,3,3  false    com.formdev.flatlaf.ui.FlatScrollPaneBorder [UI]
+
+
+#---- Spinner ----
+
+- Spinner.border                 [lazy] 1,1,1,1  false    com.formdev.flatlaf.ui.FlatRoundBorder [UI]
++ Spinner.border                 [lazy] 3,3,3,3  false    com.formdev.flatlaf.ui.FlatRoundBorder [UI]
+
+
+#---- Table ----
+
+- Table.scrollPaneBorder         [lazy] 1,1,1,1  false    com.formdev.flatlaf.ui.FlatScrollPaneBorder [UI]
++ Table.scrollPaneBorder         [lazy] 3,3,3,3  false    com.formdev.flatlaf.ui.FlatScrollPaneBorder [UI]
+
+
+#---- TextField ----
+
+- TextField.border               [lazy] 1,1,1,1  false    com.formdev.flatlaf.ui.FlatTextBorder [UI]
++ TextField.border               [lazy] 3,3,3,3  false    com.formdev.flatlaf.ui.FlatTextBorder [UI]
+
+
+#---- ToggleButton ----
+
+- ToggleButton.border            [lazy] 1,1,1,1  false    com.formdev.flatlaf.ui.FlatButtonBorder [UI]
++ ToggleButton.border            [lazy] 3,3,3,3  false    com.formdev.flatlaf.ui.FlatButtonBorder [UI]
+
+
+#---- contrast ratio: ProgressBar ----
+
+- contrast ratio: ProgressBar.foreground                              #4c87c8  #3c3f41     2.8  !!!!!
++ contrast ratio: ProgressBar.foreground                              #c4c4c4  #3c3f41     6.1  !
+
+- contrast ratio: ProgressBar.selectionForeground                     #eeeeee  #4c87c8     3.2  !!!!
++ contrast ratio: ProgressBar.selectionForeground                     #1e2021  #c4c4c4     9.4
