@@ -1,0 +1,129 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\geometry{a4paper, margin=2.5cm}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{tcolorbox}
+\usepackage{titlesec}
+
+% Couleurs
+\definecolor{primary}{RGB}{15, 60, 110}
+\definecolor{secondary}{RGB}{41, 128, 185}
+\definecolor{codebg}{RGB}{245, 245, 245}
+
+% Configuration des titres
+\titleformat{\section}{\color{primary}\Large\bfseries}{\thesection}{1em}{}[{\color{primary}\titlerule}]
+\titleformat{\subsection}{\color{secondary}\large\bfseries}{\thesubsection}{1em}{}
+
+% Configuration du code
+\lstset{
+    backgroundcolor=\color{codebg},
+    basicstyle=\ttfamily\footnotesize,
+    breaklines=true,
+    frame=single,
+    rulecolor=\color{lightgray},
+    language=Java,
+    keywordstyle=\color{blue}\bfseries,
+    stringstyle=\color{red},
+    commentstyle=\color{green!60!black}
+}
+
+\title{\textbf{\Huge Rapport Technique de Projet}\\[0.5cm] \Large Système de Gestion du Trafic de Fret Portuaire \\ (Port Autonome de Douala)}
+\author{\textbf{Groupe de 10 Étudiants (TP308)}}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\vspace{1cm}
+
+\section*{Présentation Générale du Projet}
+L'application développée est un système de gestion portuaire destiné au \textbf{Port Autonome de Douala}. L'objectif est de numériser le suivi des marchandises arrivant par bateau. L'application gère deux types de cargaisons : les conteneurs standards et les conteneurs réfrigérés, ces derniers nécessitant une surveillance thermique stricte. 
+
+Techniquement, le système est une application Desktop en \textbf{Java Swing} qui intègre :
+\begin{itemize}
+    \item Une modélisation \textbf{Orientée Objet} robuste (héritage, classes abstraites).
+    \item Une interface graphique fluide et réactive avec \textbf{FlatLaf} (support mode clair/sombre).
+    \item Un simulateur \textbf{Multithread} d'évolution des températures.
+    \item Une \textbf{Persistance binaire} des données pour la sauvegarde de l'état.
+\end{itemize}
+
+\newpage
+\section{Organisation et Répartition des Tâches}
+
+Le groupe a fonctionné comme une équipe technique agile, divisée en 4 pôles spécialisés.
+
+% --- EQUIPE 1 ---
+\subsection{1. Équipe Core \& Métier}
+\textbf{Membres :} Bahebeg, Olivia, Ali \\[0.2cm]
+\textbf{Mission :} Modélisation de la POO, classes abstraites, héritage et algorithmes métier.\\[0.2cm]
+L'équipe a conçu la structure de base des objets métier. Le fichier central est la classe abstraite \texttt{Marchandise.java} qui encapsule les attributs communs (ID, poids, provenance, statut). Les sous-classes \texttt{ConteneurStandard.java} et \texttt{ConteneurRefrigere.java} en héritent.
+L'équipe a implémenté le \textbf{polymorphisme} sur le calcul des taxes portuaires via la méthode abstraite :
+\begin{lstlisting}
+// Dans Marchandise.java
+public abstract double calculerTaxe();
+
+// Dans ConteneurRefrigere.java (taxe = 5% poids + 2% surcharge energetique)
+@Override
+public double calculerTaxe() {
+    return getPoids() * 0.05 + getPoids() * 0.02;
+}
+\end{lstlisting}
+
+% --- EQUIPE 2 ---
+\subsection{2. Équipe Persistance \& Données}
+\textbf{Membres :} Ali Fadel, Abdel \\[0.2cm]
+\textbf{Mission :} Écriture des modules d'accès aux données (Fichiers sérialisés).\\[0.2cm]
+Toute la logique d'enregistrement réside dans \texttt{GestionDonnees.java}. Cette équipe a mis en place la sérialisation binaire permettant de sauvegarder la liste complète (collection \texttt{List<Marchandise>}) dans un fichier \texttt{port\_douala.ser}. Pour assurer la sécurité lors du multithreading, l'équipe a intégré un système de \textbf{verrous} (\texttt{synchronized (verrou)}).
+\begin{lstlisting}
+// Dans GestionDonnees.java
+public void sauvegarder(String chemin) throws IOException {
+    synchronized (verrou) {
+        try (ObjectOutputStream oos = new ObjectOutputStream(
+                new FileOutputStream(chemin))) {
+            oos.writeObject(new ArrayList<>(cargaisons));
+        }
+    }
+}
+\end{lstlisting}
+
+% --- EQUIPE 3 ---
+\subsection{3. Équipe IHM Swing}
+\textbf{Membres :} Alamine, Bayi, Amayen \\[0.2cm]
+\textbf{Mission :} Conception des fenêtres, agencement des composants (Layouts), événements.\\[0.2cm]
+L'interface graphique est orchestrée par \texttt{FenetrePrincipale.java}. L'équipe a géré l'affichage de la \texttt{JTable} avec un rendu coloré personnalisé dans \texttt{RenduTableauCargaison.java} (badges de statut arrondis). Les formulaires de saisie (\texttt{DialogueCargaison.java}) utilisent un \texttt{GridBagLayout} enveloppé dans un composant \texttt{Scrollable} pour éviter le rognage sur petit écran.
+
+Un des éléments majeurs de l'IHM est le tableau de bord qui affiche des statistiques et le composant \texttt{GraphiqueTemperature.java}. \textbf{Ce graphique dynamique} utilise \texttt{Graphics2D} pour dessiner l'évolution en temps réel des températures des conteneurs réfrigérés à l'aide de courbes fluides et d'un quadrillage repéré.
+
+% --- EQUIPE 4 ---
+\subsection{4. Équipe Performance \& Multithreading}
+\textbf{Membres :} Azefack, Lauraine \\[0.2cm]
+\textbf{Mission :} Traitements asynchrones et synchronisation des données avec l'UI.\\[0.2cm]
+Pour répondre à la contrainte de temps réel sans bloquer l'interface, l'équipe a implémenté la classe \texttt{MoniteurTemperature.java} qui tourne sur un thread d'arrière-plan (via l'interface \texttt{Runnable}). Ce thread se réveille toutes les 3 secondes pour modifier la température des conteneurs réfrigérés. 
+Pour mettre à jour le \texttt{GraphiqueTemperature} et le tableau des alertes en toute sécurité, ils ont utilisé \texttt{SwingUtilities.invokeLater} :
+\begin{lstlisting}
+// Dans MoniteurTemperature.java
+@Override
+public void run() {
+    while (actif) {
+        try {
+            Thread.sleep(3000); // Pause de 3 secondes
+            gestionDonnees.appliquerVariationTemperature();
+            
+            // Mise a jour de l'IHM (JTable, Graphique) de maniere Thread-Safe
+            SwingUtilities.invokeLater(() -> {
+                if (onActualisation != null) onActualisation.run();
+            });
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            break;
+        }
+    }
+}
+\end{lstlisting}
+
+\end{document}
